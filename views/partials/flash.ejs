@@ -1,0 +1,23 @@
+<% if (typeof flash !== 'undefined' && flash) { %>
+  <% if (flash.success) { %>
+    <div class="alert-banner alert-success" role="alert" aria-live="polite">
+      <span aria-hidden="true">✅</span>
+      <div style="flex: 1; font-weight: 500;"><%= flash.success %></div>
+      <button type="button" class="btn btn-ghost btn-sm no-spin" onclick="this.parentElement.remove()" aria-label="Dismiss notification" style="padding: 0 6px; height: 24px; color: inherit; opacity: 0.8;">✕</button>
+    </div>
+  <% } %>
+  <% if (flash.error) { %>
+    <div class="alert-banner alert-error" role="alert" aria-live="assertive">
+      <span aria-hidden="true">⚠️</span>
+      <div style="flex: 1; font-weight: 500;"><%= flash.error %></div>
+      <button type="button" class="btn btn-ghost btn-sm no-spin" onclick="this.parentElement.remove()" aria-label="Dismiss alert" style="padding: 0 6px; height: 24px; color: inherit; opacity: 0.8;">✕</button>
+    </div>
+  <% } %>
+  <% if (flash.info) { %>
+    <div class="alert-banner alert-info" role="alert" aria-live="polite">
+      <span aria-hidden="true">ℹ️</span>
+      <div style="flex: 1; font-weight: 500;"><%= flash.info %></div>
+      <button type="button" class="btn btn-ghost btn-sm no-spin" onclick="this.parentElement.remove()" aria-label="Dismiss notification" style="padding: 0 6px; height: 24px; color: inherit; opacity: 0.8;">✕</button>
+    </div>
+  <% } %>
+<% } %>

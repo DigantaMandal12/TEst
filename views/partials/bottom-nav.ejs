@@ -1,0 +1,43 @@
+<!-- Sticky Mobile Bottom Navigation with Safe Area Padding -->
+<nav class="bottom-nav" aria-label="Mobile Bottom Navigation">
+  <div class="bottom-nav-inner">
+    <a href="/" class="bottom-nav-item <%= currentPath === '/' ? 'active' : '' %>" aria-current="<%= currentPath === '/' ? 'page' : 'false' %>">
+      <span class="bottom-nav-icon" aria-hidden="true">🏠</span>
+      <span>Home</span>
+    </a>
+    <a href="/equipment" class="bottom-nav-item <%= currentPath.startsWith('/equipment') ? 'active' : '' %>" aria-current="<%= currentPath.startsWith('/equipment') ? 'page' : 'false' %>">
+      <span class="bottom-nav-icon" aria-hidden="true">🔍</span>
+      <span>Catalogue</span>
+    </a>
+    <% if (user) { %>
+      <a href="/borrow/my-loans" class="bottom-nav-item <%= currentPath === '/borrow/my-loans' ? 'active' : '' %>" aria-current="<%= currentPath === '/borrow/my-loans' ? 'page' : 'false' %>">
+        <span class="bottom-nav-icon" aria-hidden="true">📦</span>
+        <span>My Loans</span>
+      </a>
+      <% if (user.role === 'senior' || user.role === 'admin') { %>
+        <a href="/borrow/lender" class="bottom-nav-item <%= currentPath === '/borrow/lender' ? 'active' : '' %>" aria-current="<%= currentPath === '/borrow/lender' ? 'page' : 'false' %>">
+          <span class="bottom-nav-icon" aria-hidden="true">🛡️</span>
+          <span>Lender</span>
+        </a>
+      <% } else { %>
+        <a href="/chatbot" class="bottom-nav-item <%= currentPath === '/chatbot' || currentPath === '/chat' ? 'active' : '' %>" aria-current="<%= currentPath === '/chatbot' || currentPath === '/chat' ? 'page' : 'false' %>">
+          <span class="bottom-nav-icon" aria-hidden="true">🤖</span>
+          <span>AI Help</span>
+        </a>
+      <% } %>
+      <a href="/users/profile" class="bottom-nav-item <%= currentPath.startsWith('/users') ? 'active' : '' %>" aria-current="<%= currentPath.startsWith('/users') ? 'page' : 'false' %>">
+        <span class="bottom-nav-icon" aria-hidden="true">👤</span>
+        <span>Profile</span>
+      </a>
+    <% } else { %>
+      <a href="/chatbot" class="bottom-nav-item <%= currentPath === '/chatbot' || currentPath === '/chat' ? 'active' : '' %>" aria-current="<%= currentPath === '/chatbot' || currentPath === '/chat' ? 'page' : 'false' %>">
+        <span class="bottom-nav-icon" aria-hidden="true">🤖</span>
+        <span>AI Help</span>
+      </a>
+      <a href="/auth/login" class="bottom-nav-item <%= currentPath.startsWith('/auth') ? 'active' : '' %>" aria-current="<%= currentPath.startsWith('/auth') ? 'page' : 'false' %>">
+        <span class="bottom-nav-icon" aria-hidden="true">🔑</span>
+        <span>Sign In</span>
+      </a>
+    <% } %>
+  </div>
+</nav>

@@ -1,0 +1,37 @@
+# Dependencies & Caches
+node_modules
+.npm
+npm-debug.log*
+yarn-debug.log*
+
+# Git metadata
+.git
+.gitignore
+.github
+
+# Environment secrets
+.env
+.env*
+*.key
+*.pem
+
+# Documentation & planning artifacts
+docs/
+artifacts/
+*.md
+!README.md
+
+# Test suites & logs
+test_*.js
+tests/
+coverage/
+logs/
+*.log
+
+# Temporary files & archives
+*.zip
+*.tar.gz
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

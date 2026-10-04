@@ -1,0 +1,175 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content">
+  <div class="container">
+    <%- include('../partials/flash') %>
+
+    <!-- Breadcrumb Wayfinding -->
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/equipment" class="breadcrumb-item">Catalogue</a>
+      <span class="breadcrumb-separator" aria-hidden="true">/</span>
+      <a href="/equipment?category=<%= encodeURIComponent(item.category) %>" class="breadcrumb-item"><%= item.category %></a>
+      <span class="breadcrumb-separator" aria-hidden="true">/</span>
+      <span class="breadcrumb-current" aria-current="page"><%= item.title %></span>
+    </nav>
+
+    <!-- Stepper Timeline Preview -->
+    <div style="margin-bottom: var(--space-6);">
+      <%- include('../partials/timeline', { currentStep: 2 }) %>
+    </div>
+
+    <!-- Main Detail Layout (Grid: 2 cols on Desktop) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-8); align-items: start;">
+      
+      <!-- Left Column: Media & Specifications -->
+      <div>
+        <div class="card" style="padding: 0; overflow: hidden; margin-bottom: var(--space-6);">
+          <div style="height: 280px; background-color: var(--color-surface-alt); display: flex; align-items: center; justify-content: center; position: relative;">
+            <% const icons = { 'Mechanical': '⚙️', 'Civil': '🏗️', 'Electrical': '⚡', 'Survey': '📐', 'Other Engineering Equipment': '🔬' }; %>
+            <span style="font-size: 72px;" aria-hidden="true"><%= icons[item.category] || '🛠️' %></span>
+            <div style="position: absolute; top: 16px; right: 16px;">
+              <% if (item.status === 'available') { %>
+                <span class="badge badge-available" style="padding: 4px 12px; font-size: 13px;">
+                  <span class="status-dot available" aria-hidden="true"></span> Available
+                </span>
+              <% } else { %>
+                <span class="badge badge-pending" style="padding: 4px 12px; font-size: 13px;">
+                  <span class="status-dot pending" aria-hidden="true"></span> In Use / Reserved
+                </span>
+              <% } %>
+            </div>
+          </div>
+          
+          <div style="padding: var(--space-6);">
+            <span class="badge badge-category" style="margin-bottom: var(--space-2);"><%= item.category %></span>
+            <h1 style="font-size: 26px; margin-bottom: var(--space-3);"><%= item.title %></h1>
+            <p style="color: var(--color-muted); line-height: 22px; margin-bottom: var(--space-4);">
+              <%= item.description || 'Verified academic equipment maintained according to departmental safety standards.' %>
+            </p>
+
+            <h3 style="margin-bottom: var(--space-2); font-size: 16px;">Instrument Specifications</h3>
+            <ul style="list-style: none; margin-bottom: var(--space-4);">
+              <% if (item.specs && item.specs.length > 0) { %>
+                <% item.specs.forEach(function(spec) { %>
+                  <li style="font-size: 13px; color: var(--color-text); padding: 6px 0; border-bottom: 1px dashed var(--color-border); display: flex; gap: 8px;">
+                    <span style="color: var(--color-primary);" aria-hidden="true">✔</span> <%= spec %>
+                  </li>
+                <% }); %>
+              <% } else { %>
+                <li style="font-size: 13px; color: var(--color-muted);">Standard department specifications applied.</li>
+              <% } %>
+            </ul>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); background: var(--color-background); padding: var(--space-3); border-radius: var(--radius-md); font-size: 13px; border: 1px solid var(--color-border);">
+              <div>
+                <span class="caption">Equipment Condition:</span>
+                <div class="font-semibold"><%= item.condition || 'Excellent' %></div>
+              </div>
+              <div>
+                <span class="caption">Max Loan Window:</span>
+                <div class="font-semibold"><%= item.maxBorrowDays || 7 %> Days</div>
+              </div>
+              <div>
+                <span class="caption">Department Tag:</span>
+                <div class="font-semibold"><%= item.serialNumber || 'LAB-ENG' %></div>
+              </div>
+              <div>
+                <span class="caption">Required Trust Score:</span>
+                <div class="font-semibold" style="color: var(--color-primary);"><%= item.minTrustScore || 60 %> / 100</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reviews & Peer Ratings -->
+        <div class="card">
+          <h3 style="margin-bottom: var(--space-3);">Student Peer Reviews</h3>
+          <% if (reviews && reviews.length > 0) { %>
+            <% reviews.forEach(function(rev) { %>
+              <div style="border-bottom: 1px solid var(--color-border); padding: var(--space-3) 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <span class="rating-stars" aria-label="<%= rev.rating %> out of 5 stars">★★★★★</span>
+                  <span class="caption"><%= new Date(rev.createdAt).toLocaleDateString() %></span>
+                </div>
+                <p style="font-size: 13px; color: var(--color-text);"><%= rev.comment %></p>
+              </div>
+            <% }); %>
+          <% } else { %>
+            <p class="caption">No reviews yet for this instrument. Be the first student to review after returning!</p>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Right Column: Booking Action Card & Owner Trust Profile -->
+      <div>
+        
+        <!-- Borrow Action Card -->
+        <div class="card" style="border: 2px solid var(--color-primary-light); box-shadow: var(--shadow-hover); margin-bottom: var(--space-6);">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-4);">
+            <div>
+              <span style="font-size: 28px; font-weight: 700; color: var(--color-primary);">
+                <%= item.dailyFee > 0 ? '₹' + item.dailyFee : 'Free' %>
+              </span>
+              <span class="caption"><%= item.dailyFee > 0 ? ' per day' : ' student loan' %></span>
+            </div>
+            <div style="text-align: right;">
+              <span class="caption">Refundable Deposit</span>
+              <div style="font-size: 18px; font-weight: 600; color: var(--color-text);">₹<%= item.deposit %></div>
+            </div>
+          </div>
+
+          <div style="background-color: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-3); margin-bottom: var(--space-4); font-size: 12px; line-height: 18px;">
+            <div style="display: flex; gap: 8px; margin-bottom: 4px;">
+              <span aria-hidden="true">📍</span>
+              <div><strong>Pickup Location:</strong> <%= item.pickupLocation %></div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <span aria-hidden="true">🛡️</span>
+              <span>Deposit is 100% refunded to your campus wallet upon return inspection.</span>
+            </div>
+          </div>
+
+          <% if (item.status === 'available') { %>
+            <a href="/borrow/request/<%= item._id || item.id %>" class="btn btn-primary btn-full btn-lg">
+              Proceed to Borrow Request →
+            </a>
+          <% } else { %>
+            <button class="btn btn-outline btn-full btn-lg" disabled style="cursor: not-allowed; opacity: 0.6;">
+              Item Currently Unavailable
+            </button>
+            <p class="caption" style="text-align: center; margin-top: var(--space-2);">
+              Estimated return soon. Check back or explore similar equipment in the catalogue.
+            </p>
+          <% } %>
+        </div>
+
+        <!-- Owner / Department Card -->
+        <div class="card">
+          <h3 style="font-size: 15px; margin-bottom: var(--space-3);">Equipment Custodian & Approver</h3>
+          <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4);">
+            <div class="user-avatar-sm" style="width: 44px; height: 44px; font-size: 16px;">
+              <%= (owner && owner.name) ? owner.name.charAt(0) : 'C' %>
+            </div>
+            <div>
+              <div class="font-semibold" style="font-size: 14px;"><%= (owner && owner.name) || item.ownerName || 'Department Lab Store' %></div>
+              <div class="caption">
+                <%= (owner && owner.role === 'senior') ? 'Senior Student Custodian' : 'Campus Lab Staff' %>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; background-color: var(--color-background); padding: var(--space-3); border-radius: var(--radius-md); font-size: 12px; border: 1px solid var(--color-border);">
+            <span>Custodian Trust Rating</span>
+            <span class="badge trust-score-gold">★ <%= (owner && owner.trustScore) || 95 %> / 100</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

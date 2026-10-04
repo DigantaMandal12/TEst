@@ -1,0 +1,85 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content">
+  <div class="container container-narrow">
+    <%- include('../partials/flash') %>
+
+    <!-- Breadcrumb Wayfinding -->
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/" class="breadcrumb-item">Home</a>
+      <span class="breadcrumb-separator" aria-hidden="true">/</span>
+      <span class="breadcrumb-current" aria-current="page">Activity & Notifications</span>
+    </nav>
+
+    <div class="section-header">
+      <div>
+        <h1>Activity & Notifications</h1>
+        <p class="text-muted">Real-time alerts for pickup schedules, senior approvals, and order status.</p>
+      </div>
+      <% if (notifications && notifications.length > 0) { %>
+        <form action="/notifications/read-all" method="POST" style="margin: 0;">
+          <button type="submit" class="btn btn-outline btn-sm no-spin">Mark All as Read</button>
+        </form>
+      <% } %>
+    </div>
+
+    <!-- Notifications List -->
+    <% if (notifications && notifications.length > 0) { %>
+      <div style="display: flex; flex-direction: column; gap: var(--space-3);" role="feed" aria-label="Notifications list">
+        <% notifications.forEach(function(n) { %>
+          <%
+            let icon = '🔔';
+            if (n.title.includes('APPROVAL') || n.title.includes('APPROVED')) icon = '✅';
+            if (n.title.includes('PICKUP') || n.title.includes('COLLECTED')) icon = '📍';
+            if (n.title.includes('RETURN') || n.title.includes('REFUND')) icon = '💰';
+          %>
+          <article class="card" style="padding: var(--space-4); background-color: <%= n.read ? 'var(--color-surface)' : 'var(--color-primary-light)' %>; border-left: 4px solid <%= n.read ? 'var(--color-border)' : 'var(--color-primary)' %>;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-2);">
+              <h3 style="font-size: 15px; display: flex; align-items: center; gap: 8px;">
+                <span aria-hidden="true"><%= icon %></span>
+                <span><%= n.title %></span>
+                <% if (!n.read) { %>
+                  <span class="badge badge-category" style="font-size: 10px; padding: 1px 6px;">NEW</span>
+                <% } %>
+              </h3>
+              <span class="caption"><%= new Date(n.createdAt).toLocaleDateString() %></span>
+            </div>
+
+            <div style="font-size: 13px; line-height: 20px; color: var(--color-text); white-space: pre-line; margin-bottom: var(--space-3);">
+              <%= n.message %>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--color-border); padding-top: var(--space-2);">
+              <% if (n.link) { %>
+                <a href="<%= n.link %>" class="btn btn-primary btn-sm" style="font-size: 11px; height: 28px;">
+                  View Order Details →
+                </a>
+              <% } else { %>
+                <span></span>
+              <% } %>
+
+              <% if (!n.read) { %>
+                <form action="/notifications/<%= n._id || n.id %>/read" method="POST" style="margin: 0;">
+                  <button type="submit" class="btn btn-ghost btn-sm no-spin" style="font-size: 11px;">
+                    Dismiss
+                  </button>
+                </form>
+              <% } %>
+            </div>
+          </article>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="empty-state">
+        <div class="empty-state-icon" aria-hidden="true">🔔</div>
+        <h3 class="empty-state-title">All caught up</h3>
+        <p class="empty-state-desc">You have no unread notifications or order updates.</p>
+        <a href="/equipment" class="btn btn-primary btn-sm">Explore Equipment Catalogue</a>
+      </div>
+    <% } %>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

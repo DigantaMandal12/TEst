@@ -1,0 +1,41 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Strict bitmap image validation (prohibits SVG to prevent embedded script execution)
+    function isSafeImageFile() {
+      return request.resource.contentType.matches('image/(jpeg|png|webp)');
+    }
+
+    function isUnderMaxSize(maxMegabytes) {
+      return request.resource.size <= maxMegabytes * 1024 * 1024;
+    }
+
+    // Equipment Images (Public read, Authenticated write, max 5MB safe bitmap)
+    match /equipment/{imageId} {
+      allow read: if true;
+      allow write: if isAuthenticated() && isSafeImageFile() && isUnderMaxSize(5);
+    }
+
+    // Return & Condition Inspection Photos (Scoped to authenticated participants, max 5MB safe bitmap)
+    match /inspections/{orderId}/{photoId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isSafeImageFile() && isUnderMaxSize(5);
+    }
+
+    // User Avatar Images (Public read, Owner-only write, max 2MB safe bitmap)
+    match /users/{userId}/{avatarId} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.auth.uid == userId && isSafeImageFile() && isUnderMaxSize(2);
+    }
+
+    // Default deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

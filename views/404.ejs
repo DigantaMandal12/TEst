@@ -1,0 +1,20 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="main-content">
+  <div class="container container-compact" style="text-align: center; padding-top: var(--space-12);">
+    <div class="empty-state">
+      <div style="font-size: 56px; margin-bottom: var(--space-4);" aria-hidden="true">🧭</div>
+      <h1 style="font-size: 26px; margin-bottom: var(--space-2);">404 — Page Not Found</h1>
+      <p class="text-muted" style="margin-bottom: var(--space-6); font-size: 14px; line-height: 22px;">
+        The equipment or page you are looking for does not exist in the campus exchange index.
+      </p>
+      <div style="display: flex; justify-content: center; gap: var(--space-3); flex-wrap: wrap;">
+        <a href="/" class="btn btn-outline btn-sm">Back to Home</a>
+        <a href="/equipment" class="btn btn-primary btn-sm">Browse Catalogue</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,218 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content">
+  <div class="container container-narrow">
+    <%- include('../partials/flash') %>
+
+    <!-- Breadcrumb Wayfinding -->
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/" class="breadcrumb-item">Home</a>
+      <span class="breadcrumb-separator" aria-hidden="true">/</span>
+      <span class="breadcrumb-current" aria-current="page">Member Profile & Trust Score</span>
+    </nav>
+
+    <!-- Profile Header Card -->
+    <div class="card" style="margin-bottom: var(--space-6); padding: var(--space-6);">
+      <div style="display: flex; gap: var(--space-4); align-items: center; flex-wrap: wrap;">
+        <!-- Purple Avatar Square (Matching Reference 5) -->
+        <div class="profile-avatar-square" aria-hidden="true">
+          <% if (user.avatarUrl && !user.avatarUrl.includes('default-avatar')) { %>
+            <img src="<%= user.avatarUrl %>" alt="<%= user.name %>" style="width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-xl);" onerror="this.style.display='none'; this.parentElement.innerText='<%= user.name ? user.name.charAt(0) : "U" %>'">
+          <% } else { %>
+            <%= user.name ? user.name.charAt(0) : 'U' %>
+          <% } %>
+        </div>
+        <div style="flex: 1;">
+          <div style="display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;">
+            <h1 style="font-size: 24px;"><%= user.name %></h1>
+            <span class="badge badge-category"><%= user.role ? user.role.toUpperCase() : 'STUDENT' %></span>
+            <span class="badge trust-score-gold">★ <%= user.trustTier || 'Gold' %> Tier</span>
+          </div>
+          <p class="caption" style="margin-top: 4px;">
+            Department of <%= user.department || 'Mechanical' %> • College ID: <%= user.collegeId %> • <%= user.email %>
+          </p>
+        </div>
+
+        <div style="display: flex; gap: var(--space-2);">
+          <a href="/auth/logout" class="btn btn-outline btn-sm" style="color: var(--color-error); border-color: var(--color-error-border);">Log Out</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trust Score Deep Dive Meter -->
+    <div class="card" style="margin-bottom: var(--space-6); padding: var(--space-6); border: 2px solid #FEF08A; background: linear-gradient(180deg, #FEFCE8 0%, #FFFFFF 100%);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-3);">
+        <div>
+          <span class="caption" style="font-weight: 700; color: #854D0E; text-transform: uppercase;">Campus Trust Rating</span>
+          <h2 style="font-size: 22px; color: #713F12; margin-top: 2px;">
+            Trust Score: <%= user.trustScore || 85 %> / 100
+          </h2>
+        </div>
+        <div style="text-align: right;">
+          <span class="badge trust-score-gold" style="font-size: 13px; padding: 4px 12px;">
+            <%= user.trustTier || 'Gold' %> Member
+          </span>
+        </div>
+      </div>
+
+      <div class="trust-meter-bar" style="height: 12px;">
+        <div class="trust-meter-fill" style="width: <%= user.trustScore || 85 %>%;"></div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-4); margin-top: var(--space-4); font-size: 13px;">
+        <div>
+          <span class="caption">On-Time Return Rate</span>
+          <div style="font-weight: 700; color: var(--color-success);">100% (Zero Defaults)</div>
+        </div>
+        <div>
+          <span class="caption">Peer Review Rating</span>
+          <div style="font-weight: 700; color: #F59E0B;">★ <%= user.ratingAvg || 4.9 %> / 5.0</div>
+        </div>
+        <div>
+          <span class="caption">Total Exchanges</span>
+          <div style="font-weight: 700;"><%= (user.totalBorrowed || 0) + (user.totalLent || 0) %> Completed</div>
+        </div>
+        <div>
+          <span class="caption">Deposit Privilege</span>
+          <div style="font-weight: 700; color: var(--color-primary);">Fast Track Release</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Connected Social Accounts (Unified Multi-Provider Security) -->
+    <div class="card" style="margin-bottom: var(--space-6); padding: var(--space-6);">
+      <h3 style="margin-bottom: var(--space-2); font-size: 16px;">Connected accounts</h3>
+      <p class="caption" style="margin-bottom: var(--space-4);">Link your institutional or social identities for fast, secure one-click sign-in.</p>
+
+      <% 
+        const linked = Array.isArray(user.linkedProviders) ? user.linkedProviders : [];
+        const isGoogleLinked = linked.some(p => p.includes('google'));
+        const isGithubLinked = linked.some(p => p.includes('github'));
+        const isFacebookLinked = linked.some(p => p.includes('facebook'));
+        const isLinkedinLinked = linked.some(p => p.includes('linkedin'));
+      %>
+
+      <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+        <!-- Google -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <svg class="social-icon" viewBox="0 0 24 24" width="20" height="20">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <div>
+              <strong>Google Account</strong>
+              <div class="caption"><%= isGoogleLinked ? 'Connected to campus identity' : 'Not connected' %></div>
+            </div>
+          </div>
+          <div>
+            <% if (isGoogleLinked) { %>
+              <span class="connected-account-badge connected-badge-active" style="margin-right: 8px;">✓ Connected</span>
+              <button type="button" class="btn btn-outline btn-sm" data-action="unlink-provider" data-provider="google.com">Disconnect</button>
+            <% } else { %>
+              <button type="button" class="btn btn-primary btn-sm" data-action="link-provider" data-provider="google">Connect</button>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- GitHub -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <svg class="social-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            <div>
+              <strong>GitHub Account</strong>
+              <div class="caption"><%= isGithubLinked ? 'Connected to campus identity' : 'Not connected' %></div>
+            </div>
+          </div>
+          <div>
+            <% if (isGithubLinked) { %>
+              <span class="connected-account-badge connected-badge-active" style="margin-right: 8px;">✓ Connected</span>
+              <button type="button" class="btn btn-outline btn-sm" data-action="unlink-provider" data-provider="github.com">Disconnect</button>
+            <% } else { %>
+              <button type="button" class="btn btn-primary btn-sm" data-action="link-provider" data-provider="github">Connect</button>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Facebook -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <svg class="social-icon" viewBox="0 0 24 24" width="20" height="20" fill="#1877F2">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            <div>
+              <strong>Facebook Account</strong>
+              <div class="caption"><%= isFacebookLinked ? 'Connected to campus identity' : 'Not connected' %></div>
+            </div>
+          </div>
+          <div>
+            <% if (isFacebookLinked) { %>
+              <span class="connected-account-badge connected-badge-active" style="margin-right: 8px;">✓ Connected</span>
+              <button type="button" class="btn btn-outline btn-sm" data-action="unlink-provider" data-provider="facebook.com">Disconnect</button>
+            <% } else { %>
+              <button type="button" class="btn btn-primary btn-sm" data-action="link-provider" data-provider="facebook">Connect</button>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- LinkedIn -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <svg class="social-icon" viewBox="0 0 24 24" width="20" height="20" fill="#0A66C2">
+              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+            </svg>
+            <div>
+              <strong>LinkedIn Profile</strong>
+              <div class="caption"><%= isLinkedinLinked ? 'Connected to campus identity' : 'Not connected' %></div>
+            </div>
+          </div>
+          <div>
+            <% if (isLinkedinLinked) { %>
+              <span class="connected-account-badge connected-badge-active" style="margin-right: 8px;">✓ Connected</span>
+              <button type="button" class="btn btn-outline btn-sm" data-action="unlink-provider" data-provider="linkedin.com">Disconnect</button>
+            <% } else { %>
+              <button type="button" class="btn btn-primary btn-sm" data-action="link-provider" data-provider="linkedin">Connect</button>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Past Exchanges & Reviews -->
+    <div class="card" style="padding: var(--space-6);">
+      <h3 style="margin-bottom: var(--space-4); font-size: 16px;">Completed Exchanges & History</h3>
+      <% if (borrowHistory && borrowHistory.length > 0) { %>
+        <ul style="list-style: none;">
+          <% borrowHistory.forEach(function(item) { %>
+            <li style="padding: var(--space-3) 0; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
+              <div>
+                <strong><%= item.title %></strong>
+                <span class="text-muted">• Loan #<%= item.orderId || 'ORD-REF' %></span>
+                <div class="caption">Returned: <%= item.returnDate || 'Recently' %></div>
+              </div>
+              <div style="text-align: right;">
+                <span class="badge badge-success">Completed</span>
+                <div class="caption" style="color: var(--color-success); font-weight: 600; margin-top: 2px;">+3 Trust Score</div>
+              </div>
+            </li>
+          <% }); %>
+        </ul>
+      <% } else { %>
+        <div style="text-align: center; padding: var(--space-6); color: var(--color-muted);">
+          <div style="font-size: 28px; margin-bottom: var(--space-2);">📦</div>
+          <p>No completed borrowing history yet.</p>
+          <a href="/equipment" class="btn btn-primary btn-sm" style="margin-top: var(--space-3);">Explore Equipment Catalog</a>
+        </div>
+      <% } %>
+    </div>
+
+  </div>
+</main>
+
+<script src="/js/socialAuth.js"></script>
+<%- include('../partials/footer') %>

@@ -1,0 +1,24 @@
+<% 
+  const activeStep = typeof currentStep !== 'undefined' ? Number(currentStep) : 1; 
+  const steps = [
+    { num: 1, label: 'Search Gear' },
+    { num: 2, label: 'Request & Date' },
+    { num: 3, label: 'Senior Approval' },
+    { num: 4, label: 'Campus Pickup' },
+    { num: 5, label: 'Return & Rating' }
+  ];
+%>
+<nav class="timeline-stepper" aria-label="Lending Lifecycle Stepper">
+  <ol style="list-style: none; display: contents;">
+    <% steps.forEach(function(s) { %>
+      <li class="step-item <%= s.num < activeStep ? 'completed' : (s.num === activeStep ? 'active' : '') %>" <%= s.num === activeStep ? 'aria-current="step"' : '' %>>
+        <div class="step-bubble" aria-hidden="true">
+          <%= s.num < activeStep ? '✓' : s.num %>
+        </div>
+        <div class="step-label">
+          <span class="sr-only">Step <%= s.num %>: </span><%= s.label %>
+        </div>
+      </li>
+    <% }); %>
+  </ol>
+</nav>

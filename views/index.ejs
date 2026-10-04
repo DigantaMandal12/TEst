@@ -1,0 +1,200 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="main-content">
+  <div class="container">
+    <%- include('partials/flash') %>
+
+    <!-- Hero Section: Campus Equipment Lending (Matching Reference 1) -->
+    <section class="hero-card">
+      <div style="display: flex; gap: var(--space-8); flex-wrap: wrap; align-items: center; margin-bottom: var(--space-8);">
+        
+        <!-- Left Hero Content -->
+        <div style="flex: 1.2; min-width: 300px;">
+          <div class="hero-announcement-pill">
+            <span class="hero-pill-dot" aria-hidden="true"></span>
+            <span>Engineering Equipment Exchange</span>
+          </div>
+
+          <h1 class="display" style="font-size: 34px; line-height: 42px; margin-bottom: var(--space-3);">
+            Campus Equipment Lending & Exchange
+          </h1>
+          <p class="body-lg" style="color: var(--color-muted); margin-bottom: var(--space-6);">
+            Borrow verified engineering instruments, survey equipment, and drafting tools from senior peers and department stores with zero friction.
+          </p>
+
+          <!-- Composite Hero Search Box (Matching Reference 1) -->
+          <form action="/equipment" method="GET" class="hero-search-wrapper" role="search">
+            <span class="search-icon-hint" aria-hidden="true" style="position: static; transform: none; font-size: 16px;">🔍</span>
+            <input 
+              type="search" 
+              name="q" 
+              placeholder="Search mini drafter, total station, multimeter, calculator..." 
+              aria-label="Search campus equipment"
+              autocomplete="off"
+            >
+            <button type="submit" class="hero-search-btn">
+              Find Equipment ➔
+            </button>
+          </form>
+
+          <!-- Quick Filter Pills Underneath -->
+          <div class="quick-filter-pills" role="toolbar" aria-label="Quick Category Shortcuts">
+            <a href="/equipment?category=Survey" class="quick-filter-pill">📐 Total Station & Survey</a>
+            <a href="/equipment?category=Mechanical" class="quick-filter-pill">⚙️ Mini Drafter & Drafting</a>
+            <a href="/equipment?category=Electrical" class="quick-filter-pill">⚡ Multimeter & Oscilloscope</a>
+            <a href="/equipment?category=Civil" class="quick-filter-pill">🏗️ Theodolite & Levels</a>
+            <a href="/equipment" class="quick-filter-pill">🔬 All Instruments</a>
+          </div>
+
+          <div style="display: flex; gap: var(--space-3); flex-wrap: wrap;">
+            <a href="/equipment" class="btn btn-outline btn-sm">Browse Full Catalogue →</a>
+            <a href="/chatbot" class="btn btn-ghost btn-sm" style="color: var(--color-primary); font-weight: 600;">Ask Hardware AI 🤖</a>
+          </div>
+        </div>
+
+        <!-- Right Floating Preview Card (Matching Reference 1 Floating Card) -->
+        <div style="flex: 0.85; min-width: 280px;">
+          <div class="hero-floating-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="badge badge-category" style="font-size: 11px;">Featured Lab Gear</span>
+              <span class="badge badge-available">
+                <span class="status-dot available status-dot-pulse" aria-hidden="true"></span> Ready for Pickup
+              </span>
+            </div>
+            
+            <div style="height: 140px; background: var(--color-surface-alt); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 56px; border: 1px solid var(--color-border);" aria-hidden="true">
+              📐
+            </div>
+
+            <div>
+              <div class="font-semibold" style="font-size: 16px; margin-bottom: 2px;">Digital Total Station TS-16</div>
+              <div class="caption">📍 Civil Engineering Station • Cabinet 2B</div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: var(--space-3); border-top: 1px solid var(--color-border);">
+              <div>
+                <div class="font-bold" style="color: var(--color-primary); font-size: 15px;">Free Peer Loan</div>
+                <div class="caption">Deposit: ₹500 (100% Refundable)</div>
+              </div>
+              <a href="/equipment" class="btn btn-primary btn-sm">
+                Request Loan →
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 4-Card Metric Grid (Matching Reference 1 & 2) -->
+      <div class="metrics-row" style="margin-bottom: 0;">
+        <div class="metric-stat-card accent-purple">
+          <span class="stat-label">Catalogued Gear</span>
+          <div class="stat-value" style="color: var(--color-primary);"><%= stats.totalEquipment %>+</div>
+          <span class="caption">Verified Lab Gear</span>
+        </div>
+        <div class="metric-stat-card accent-green">
+          <span class="stat-label">Active Loans</span>
+          <div class="stat-value" style="color: var(--color-success);"><%= stats.activeLoans %> Active</div>
+          <span class="caption">In Student Use</span>
+        </div>
+        <div class="metric-stat-card accent-blue">
+          <span class="stat-label">Trust Rating</span>
+          <div class="stat-value" style="color: var(--color-info);"><%= stats.trustRate %>%</div>
+          <span class="caption">On-Time Return Record</span>
+        </div>
+        <div class="metric-stat-card accent-amber">
+          <span class="stat-label">Campus Members</span>
+          <div class="stat-value" style="color: var(--color-warning);"><%= stats.totalUsers %></div>
+          <span class="caption">Students & Senior Lenders</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Flow Stepper -->
+    <section class="section">
+      <div style="text-align: center; margin-bottom: var(--space-4);">
+        <h2>Frictionless Student Lending Flow</h2>
+        <p class="caption">Transparent, senior-verified process from discovery to return</p>
+      </div>
+      <%- include('partials/timeline', { currentStep: 1 }) %>
+    </section>
+
+    <!-- Engineering Category Grid -->
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <h2>Department Categories</h2>
+          <p class="caption">Equip your practical labs by branch of study</p>
+        </div>
+        <a href="/equipment" class="btn btn-outline btn-sm">View Full Catalogue →</a>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: var(--space-4);">
+        <% const icons = { 'Mechanical': '⚙️', 'Civil': '🏗️', 'Electrical': '⚡', 'Survey': '📐', 'Other Engineering Equipment': '🔬' }; %>
+        <% categories.forEach(function(cat) { %>
+          <a href="/equipment?category=<%= encodeURIComponent(cat) %>" class="card card-interactive" style="text-decoration: none; display: flex; flex-direction: column; align-items: flex-start; padding: var(--space-5);">
+            <div style="font-size: 32px; margin-bottom: var(--space-2);" aria-hidden="true"><%= icons[cat] || '🛠️' %></div>
+            <h3 style="font-size: 16px; margin-bottom: 2px;"><%= cat %></h3>
+            <span class="caption"><%= categoryCounts[cat] || 0 %> instruments available</span>
+          </a>
+        <% }); %>
+      </div>
+    </section>
+
+    <!-- Featured Equipment Section -->
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <h2>Available Right Now</h2>
+          <p class="caption">Ready for same-day or scheduled campus station pickup</p>
+        </div>
+        <a href="/equipment/new" class="btn btn-secondary btn-sm">+ List Equipment</a>
+      </div>
+
+      <div class="equipment-grid">
+        <% featuredEquipment.forEach(function(item) { %>
+          <article class="equipment-card" data-title="<%= item.title %>" data-category="<%= item.category %>">
+            <div class="equipment-card-media">
+              <span class="equipment-icon-fallback" aria-hidden="true"><%= icons[item.category] || '🛠️' %></span>
+              <div class="equipment-card-badge">
+                <span class="badge badge-available">
+                  <span class="status-dot available" aria-hidden="true"></span> Available
+                </span>
+              </div>
+            </div>
+
+            <div class="equipment-card-content">
+              <span class="badge badge-category" style="align-self: flex-start; margin-bottom: var(--space-2); font-size: 11px;">
+                <%= item.category %>
+              </span>
+              <h3 class="equipment-card-title"><%= item.title %></h3>
+              <div class="equipment-card-dept">
+                <span>📍 <%= item.pickupLocation %></span>
+              </div>
+
+              <% if (item.specs && item.specs.length > 0) { %>
+                <div class="equipment-card-specs">
+                  <%= item.specs[0] %>
+                </div>
+              <% } %>
+
+              <div class="equipment-card-footer">
+                <div class="pricing-tag">
+                  <span class="pricing-amount"><%= item.dailyFee > 0 ? '₹' + item.dailyFee + '/day' : 'Free Loan' %></span>
+                  <span class="pricing-deposit">Deposit: ₹<%= item.deposit %> (Refundable)</span>
+                </div>
+                <a href="/equipment/<%= item._id || item.id %>" class="btn btn-primary btn-sm">
+                  View & Borrow
+                </a>
+              </div>
+            </div>
+          </article>
+        <% }); %>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<%- include('partials/footer') %>

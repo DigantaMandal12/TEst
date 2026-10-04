@@ -1,0 +1,90 @@
+<nav class="top-navbar" aria-label="Campus Main Navigation">
+  <div class="nav-inner">
+    <a href="/" class="brand-logo" aria-label="Campus Equipment Lending Exchange Home">
+      <div class="brand-icon" aria-hidden="true">⚡</div>
+      <span>CampusEquip</span>
+    </a>
+
+    <!-- Global Search Bar -->
+    <div class="nav-search-bar" role="search">
+      <form action="/equipment" method="GET" style="margin: 0;">
+        <span class="search-icon-hint" aria-hidden="true">🔍</span>
+        <input 
+          type="search" 
+          name="q" 
+          placeholder="Search mini drafter, theodolite, multimeter, calculator..." 
+          value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+          aria-label="Search campus equipment by name, department, or specs"
+          autocomplete="off"
+        >
+      </form>
+    </div>
+
+    <!-- Role-Aware Desktop Navigation Links -->
+    <ul class="nav-links" role="menubar">
+      <li role="none">
+        <a href="/" role="menuitem" class="nav-link-item <%= currentPath === '/' ? 'active' : '' %>" aria-current="<%= currentPath === '/' ? 'page' : 'false' %>">
+          Home
+        </a>
+      </li>
+      <li role="none">
+        <a href="/equipment" role="menuitem" class="nav-link-item <%= currentPath.startsWith('/equipment') ? 'active' : '' %>" aria-current="<%= currentPath.startsWith('/equipment') ? 'page' : 'false' %>">
+          Catalogue
+        </a>
+      </li>
+      <% if (user) { %>
+        <li role="none">
+          <a href="/borrow/my-loans" role="menuitem" class="nav-link-item <%= currentPath === '/borrow/my-loans' ? 'active' : '' %>" aria-current="<%= currentPath === '/borrow/my-loans' ? 'page' : 'false' %>">
+            My Loans
+          </a>
+        </li>
+        <% if (user.role === 'senior' || user.role === 'admin') { %>
+          <li role="none">
+            <a href="/borrow/lender" role="menuitem" class="nav-link-item <%= currentPath === '/borrow/lender' ? 'active' : '' %>" aria-current="<%= currentPath === '/borrow/lender' ? 'page' : 'false' %>">
+              Lender Hub
+            </a>
+          </li>
+        <% } %>
+      <% } %>
+      <li role="none">
+        <a href="/chatbot" role="menuitem" class="nav-link-item <%= currentPath === '/chatbot' || currentPath === '/chat' ? 'active' : '' %>" aria-current="<%= currentPath === '/chatbot' || currentPath === '/chat' ? 'page' : 'false' %>">
+          AI Assistant
+        </a>
+      </li>
+      <% if (user && user.role === 'admin') { %>
+        <li role="none">
+          <a href="/admin" role="menuitem" class="nav-link-item <%= currentPath === '/admin' ? 'active' : '' %>" aria-current="<%= currentPath === '/admin' ? 'page' : 'false' %>">
+            Admin
+          </a>
+        </li>
+      <% } %>
+    </ul>
+
+    <!-- User Action Controls & Badges -->
+    <div class="nav-actions">
+      <!-- In-App Notification Bell with Reference Red Indicator Dot -->
+      <a href="/notifications" class="notif-bell-link" aria-label="Notifications<%= typeof unreadNotifCount !== 'undefined' && unreadNotifCount > 0 ? ', ' + unreadNotifCount + ' unread' : '' %>" title="Activity & Notifications">
+        <span aria-hidden="true">🔔</span>
+        <% if (typeof unreadNotifCount !== 'undefined' && unreadNotifCount > 0) { %>
+          <span class="notif-badge" aria-hidden="true"><%= unreadNotifCount %></span>
+        <% } else { %>
+          <span class="notif-dot-indicator" aria-hidden="true"></span>
+        <% } %>
+      </a>
+
+      <!-- User Profile & Trust Score Pill -->
+      <% if (user) { %>
+        <a href="/users/profile" class="user-menu-pill" title="View Trust Score & Profile" aria-label="<%= user.name %>, Trust Score <%= user.trustScore || 85 %>">
+          <div class="user-avatar-sm" aria-hidden="true"><%= user.name ? user.name.charAt(0) : 'U' %></div>
+          <span class="font-medium"><%= user.name.split(' ')[0] %></span>
+          <span class="badge badge-available" style="padding: 1px 6px; font-size: 11px;">
+            ★ <%= user.trustScore || 85 %>
+          </span>
+        </a>
+      <% } else { %>
+        <a href="/auth/login" class="btn btn-outline btn-sm">Sign In</a>
+        <a href="/auth/register" class="btn btn-primary btn-sm">Register</a>
+      <% } %>
+    </div>
+  </div>
+</nav>

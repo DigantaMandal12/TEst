@@ -1,0 +1,77 @@
+# ========================================================
+# Render Infrastructure Blueprint — Multi-Environment Spec
+# Campus Equipment Lending & Exchange Platform
+# ========================================================
+
+services:
+  # ------------------------------------------------------
+  # STAGING WEB SERVICE
+  # ------------------------------------------------------
+  - type: web
+    name: campus-equipment-exchange-staging
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter
+    region: singapore
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ALLOW_DEMO_LOGIN
+        value: "false"
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: APP_URL
+        value: https://campus-equipment-exchange-staging.onrender.com
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: FIREBASE_STORAGE_BUCKET
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_MODEL
+        value: meta-llama/llama-3.1-8b-instruct:free
+
+  # ------------------------------------------------------
+  # PRODUCTION WEB SERVICE (Phase 11 Launch)
+  # ------------------------------------------------------
+  - type: web
+    name: campus-equipment-exchange-prod
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: standard
+    region: singapore
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ALLOW_DEMO_LOGIN
+        value: "false"
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: APP_URL
+        value: https://equipment.campus.edu
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: FIREBASE_STORAGE_BUCKET
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_MODEL
+        value: meta-llama/llama-3.1-8b-instruct:free

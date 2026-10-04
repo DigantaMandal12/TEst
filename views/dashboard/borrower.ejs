@@ -1,0 +1,202 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content">
+  <div class="container">
+    <%- include('../partials/flash') %>
+
+    <!-- Breadcrumb Wayfinding -->
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/" class="breadcrumb-item">Home</a>
+      <span class="breadcrumb-separator" aria-hidden="true">/</span>
+      <span class="breadcrumb-current" aria-current="page">My Loans & Borrow Requests</span>
+    </nav>
+
+    <div class="section-header">
+      <div>
+        <h1>My Loans & Borrow Requests</h1>
+        <p class="text-muted">Monitor your active instruments, approval progress, and scheduled return dates.</p>
+      </div>
+      <a href="/equipment" class="btn btn-primary btn-sm">
+        + Browse Catalogue
+      </a>
+    </div>
+
+    <!-- Quick Borrower Summary Stats (Matching Reference 2 & 3) -->
+    <div class="metrics-row">
+      <div class="metric-stat-card accent-purple">
+        <span class="stat-label">Active Equipment</span>
+        <div class="stat-value" style="color: var(--color-primary);"><%= activeLoans ? activeLoans.length : 0 %></div>
+        <span class="caption">In hand or pending pickup</span>
+      </div>
+      <div class="metric-stat-card accent-green">
+        <span class="stat-label">Deposits Held</span>
+        <% 
+          let totalHeld = 0;
+          if (activeLoans) {
+            activeLoans.forEach(l => { totalHeld += Number(l.depositAmount || 0); });
+          }
+        %>
+        <div class="stat-value" style="color: var(--color-success);">₹<%= totalHeld %></div>
+        <span class="caption">100% refunded upon return</span>
+      </div>
+      <div class="metric-stat-card accent-blue">
+        <span class="stat-label">Past Completed Loans</span>
+        <div class="stat-value" style="color: var(--color-info);"><%= pastLoans ? pastLoans.length : 0 %></div>
+        <span class="caption">Instruments returned safely</span>
+      </div>
+      <div class="metric-stat-card accent-amber">
+        <span class="stat-label">My Trust Score</span>
+        <div class="stat-value" style="color: var(--color-warning);">★ <%= (user && user.trustScore) || 85 %></div>
+        <span class="caption">High Reliability Tier</span>
+      </div>
+    </div>
+
+    <!-- Section Filter Tabs (Matching Reference 3) -->
+    <div class="section-pill-tabs" role="tablist">
+      <a href="#active" class="section-pill-tab active" role="tab">Active Loans (<%= activeLoans ? activeLoans.length : 0 %>)</a>
+      <a href="#history" class="section-pill-tab" role="tab">Borrowing History (<%= pastLoans ? pastLoans.length : 0 %>)</a>
+    </div>
+
+        <!-- Active Equipment Section -->
+    <section class="section">
+      <h2 style="font-size: 18px; margin-bottom: var(--space-4);">Active Requests & Loans</h2>
+
+      <% if (activeLoans && activeLoans.length > 0) { %>
+        <div style="display: flex; flex-direction: column; gap: var(--space-4);">
+          <% activeLoans.forEach(function(req) { %>
+            <div class="card" style="padding: var(--space-5); border-left: 4px solid <%= req.status === 'active' ? 'var(--color-primary)' : (req.status === 'approved' ? 'var(--color-success)' : 'var(--color-warning)') %>;">
+              
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-3);">
+                <div>
+                  <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: 4px;">
+                    <span style="font-weight: 700; font-size: 16px;">#<%= req.orderNumber %></span>
+                    <% if (req.status === 'pending') { %>
+                      <span class="badge badge-pending"><span class="status-dot pending" aria-hidden="true"></span> Awaiting Senior Approval</span>
+                    <% } else if (req.status === 'approved') { %>
+                      <span class="badge badge-available"><span class="status-dot available" aria-hidden="true"></span> Approved — Ready for Pickup</span>
+                    <% } else if (req.status === 'active') { %>
+                      <span class="badge badge-category"><span class="status-dot available" aria-hidden="true"></span> In Use (Checked Out)</span>
+                    <% } %>
+                  </div>
+                  <h3 style="font-size: 17px; margin-bottom: 2px;">
+                    <%= req.equipment ? req.equipment.title : 'Engineering Equipment' %>
+                  </h3>
+                  <div class="caption">Department: <%= req.equipment ? req.equipment.category : 'General' %></div>
+                </div>
+
+                <div style="text-align: right;">
+                  <span class="caption">Deposit Held</span>
+                  <div style="font-weight: 700; color: var(--color-text);">₹<%= req.depositAmount || 0 %></div>
+                  <span class="badge badge-success" style="font-size: 10px;">PAID</span>
+                </div>
+              </div>
+
+              <!-- Pickup & Return Meta Details -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3); background-color: var(--color-surface-alt); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); font-size: 12px; margin-bottom: var(--space-4); border: 1px solid var(--color-border);">
+                <div>
+                  <span class="caption">Pickup Date & Slot:</span>
+                  <div class="font-semibold"><%= req.pickupDateStr || req.pickupDate %> • <%= req.pickupTime %></div>
+                </div>
+                <div>
+                  <span class="caption">Pickup Station:</span>
+                  <div class="font-semibold">📍 <%= req.pickupLocation %></div>
+                </div>
+                <div>
+                  <span class="caption">Scheduled Return Date:</span>
+                  <div class="font-semibold" style="color: var(--color-primary);"><%= req.returnDate %></div>
+                </div>
+              </div>
+
+              <!-- Lifecycle Visual Stepper -->
+              <% 
+                let stepNum = 2;
+                if (req.status === 'approved') stepNum = 4;
+                if (req.status === 'active') stepNum = 4;
+                if (req.status === 'returned') stepNum = 5;
+              %>
+              <div style="margin: var(--space-2) 0;">
+                <%- include('../partials/timeline', { currentStep: stepNum }) %>
+              </div>
+
+              <!-- Action Buttons -->
+              <div style="display: flex; justify-content: flex-end; gap: var(--space-2); border-top: 1px solid var(--color-border); padding-top: var(--space-3);">
+                <% if (req.status === 'approved') { %>
+                  <form action="/borrow/<%= req._id || req.id %>/pickup" method="POST" style="margin:0;">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                      ✔ Confirm Pickup (I Have Received the Gear)
+                    </button>
+                  </form>
+                <% } else if (req.status === 'active') { %>
+                  <form action="/borrow/<%= req._id || req.id %>/return" method="POST" style="margin:0;">
+                    <button type="submit" class="btn btn-secondary btn-sm">
+                      ↩ Return Equipment & Refund Deposit
+                    </button>
+                  </form>
+                <% } else { %>
+                  <span class="caption" style="display: flex; align-items: center;">Senior is reviewing your academic purpose request.</span>
+                <% } %>
+              </div>
+
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="empty-state">
+          <div class="empty-state-icon" aria-hidden="true">📋</div>
+          <h3 class="empty-state-title">No active borrow requests</h3>
+          <p class="empty-state-desc">You do not currently have any active equipment loans or pending requests.</p>
+          <a href="/equipment" class="btn btn-primary btn-sm">Browse Available Equipment</a>
+        </div>
+      <% } %>
+    </section>
+
+    <!-- Past Loans History -->
+    <% if (pastLoans && pastLoans.length > 0) { %>
+      <section class="section">
+        <h2 style="font-size: 18px; margin-bottom: var(--space-4);">Past Borrowing History</h2>
+        <div class="table-container">
+          <div class="table-responsive">
+            <table class="dense-table">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Equipment</th>
+                  <th>Pickup Date</th>
+                  <th>Return Date</th>
+                  <th>Status</th>
+                  <th>Deposit Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% pastLoans.forEach(function(item) { %>
+                  <tr>
+                    <td><strong>#<%= item.orderNumber %></strong></td>
+                    <td><%= item.equipment ? item.equipment.title : 'Lab Instrument' %></td>
+                    <td><%= item.pickupDate %></td>
+                    <td><%= item.returnDate %></td>
+                    <td>
+                      <span class="badge badge-success"><%= item.status %></span>
+                    </td>
+                    <td>
+                      <span class="badge badge-available">Refunded</span>
+                    </td>
+                    <td>
+                      <a href="/reviews/new?requestId=<%= item._id || item.id %>&equipmentId=<%= item.equipment ? (item.equipment._id || item.equipment.id) : '' %>" class="btn btn-outline btn-sm">
+                        Rate Gear ★
+                      </a>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    <% } %>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

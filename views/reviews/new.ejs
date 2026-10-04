@@ -1,0 +1,82 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content">
+  <div class="container container-narrow">
+    <%- include('../partials/flash') %>
+
+    <!-- Breadcrumb Wayfinding -->
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/borrow/my-loans" class="breadcrumb-item">My Loans</a>
+      <span class="breadcrumb-separator" aria-hidden="true">/</span>
+      <span class="breadcrumb-current" aria-current="page">Review & Rate Gear</span>
+    </nav>
+
+    <div style="margin-bottom: var(--space-6);">
+      <h1>Rate Equipment & Peer Custodian</h1>
+      <p class="text-muted">Your honest feedback boosts campus trust and helps other students.</p>
+    </div>
+
+    <!-- Timeline Stepper (Step 5 active) -->
+    <div style="margin-bottom: var(--space-6);">
+      <%- include('../partials/timeline', { currentStep: 5 }) %>
+    </div>
+
+    <div class="card" style="padding: var(--space-6);">
+      <form action="/reviews" method="POST" id="reviewForm">
+        <input type="hidden" name="equipmentId" value="<%= equipment ? (equipment._id || equipment.id) : '' %>">
+        <input type="hidden" name="requestId" value="<%= request ? (request._id || request.id) : '' %>">
+
+        <div style="background-color: var(--color-surface-alt); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); margin-bottom: var(--space-4); border: 1px solid var(--color-border);">
+          <strong style="font-size: 15px;"><%= equipment ? equipment.title : 'Returned Equipment' %></strong>
+          <div class="caption">Return completed • Security deposit refunded to campus wallet</div>
+        </div>
+
+        <!-- Overall Rating -->
+        <div class="form-group">
+          <label class="form-label form-label-required" for="rating">Overall Equipment Condition & Accuracy</label>
+          <select name="rating" id="rating" class="form-control" required>
+            <option value="5">★★★★★ (5/5 - Perfect Working Order)</option>
+            <option value="4">★★★★☆ (4/5 - Good Condition)</option>
+            <option value="3">★★★☆☆ (3/5 - Acceptable with minor wear)</option>
+            <option value="2">★★☆☆☆ (2/5 - Issues encountered)</option>
+            <option value="1">★☆☆☆☆ (1/5 - Defective or inaccurate)</option>
+          </select>
+        </div>
+
+        <!-- Punctuality Rating -->
+        <div class="form-group">
+          <label class="form-label form-label-required" for="punctualityRating">Pickup Station Smoothness & Handover</label>
+          <select name="punctualityRating" id="punctualityRating" class="form-control" required>
+            <option value="5">★★★★★ (5/5 - Ready on time at scheduled slot)</option>
+            <option value="4">★★★★☆ (4/5 - Slight delay, smooth collection)</option>
+            <option value="3">★★★☆☆ (3/5 - Required follow up)</option>
+          </select>
+        </div>
+
+        <!-- Written Comment -->
+        <div class="form-group">
+          <label class="form-label form-label-required" for="comment">Feedback for Fellow Engineering Students</label>
+          <textarea 
+            name="comment" 
+            id="comment" 
+            class="form-control" 
+            placeholder="Share details on battery life, calibration accuracy, or ease of use for lab assignments..." 
+            required
+          ></textarea>
+        </div>
+
+        <div style="background-color: var(--color-success-bg); border: 1px solid var(--color-success-border); color: var(--color-success-text); padding: var(--space-3); border-radius: var(--radius-md); font-size: 12px; margin-bottom: var(--space-4);">
+          ⭐ Submitting this review rewards you with <strong>+3 Trust Score points</strong>!
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full btn-lg">
+          Submit Review & Earn +3 Trust Points ➔
+        </button>
+      </form>
+    </div>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

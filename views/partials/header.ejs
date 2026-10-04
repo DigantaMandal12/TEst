@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof pageTitle !== 'undefined' ? pageTitle : 'Campus Equipment Lending Exchange' %></title>
+  <meta name="theme-color" content="#4338CA">
+  <meta name="description" content="Campus Equipment Lending & Exchange platform for students and faculty.">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <!-- Safe Public Firebase Client Configuration -->
+  <script>
+    window.__PUBLIC_FIREBASE_CONFIG__ = {
+      apiKey: "<%= process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyDemoPublicKeyForCampusLendingExchange' %>",
+      authDomain: "<%= process.env.FIREBASE_AUTH_DOMAIN || 'campus-equipment-exchange.firebaseapp.com' %>",
+      projectId: "<%= process.env.FIREBASE_PROJECT_ID || 'campus-equipment-exchange-prod' %>",
+      storageBucket: "<%= process.env.FIREBASE_STORAGE_BUCKET || 'campus-equipment-exchange.appspot.com' %>"
+    };
+  </script>
+  <!-- Firebase App & Auth SDK (Loaded deferred with offline resilience) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js" defer></script>
+</head>
+<body>

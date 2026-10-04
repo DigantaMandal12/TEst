@@ -1,0 +1,183 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content">
+  <div class="container">
+    <%- include('../partials/flash') %>
+
+    <!-- Breadcrumb Wayfinding -->
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/" class="breadcrumb-item">Home</a>
+      <span class="breadcrumb-separator" aria-hidden="true">/</span>
+      <span class="breadcrumb-current" aria-current="page">Equipment Catalogue</span>
+    </nav>
+
+    <!-- Header & Action Row -->
+    <div class="section-header">
+      <div>
+        <h1>Campus Equipment Catalogue</h1>
+        <p class="text-muted">Browse lab instruments, drafting tools, and survey gear verified by department seniors.</p>
+      </div>
+      <div style="display: flex; gap: var(--space-2);">
+        <a href="/equipment/new" class="btn btn-primary btn-sm">
+          + List Equipment
+        </a>
+      </div>
+    </div>
+
+    <!-- Top Green Success / Status Banner (Matching Reference 2) -->
+    <div class="reference-banner-success" role="status">
+      <div class="reference-banner-icon" aria-hidden="true">✓</div>
+      <div>
+        <strong>Verified Academic Inventory:</strong> All instruments calibrated for semester lab coursework. Zero advance deduction with instantaneous QR station pickup.
+      </div>
+    </div>
+
+    <!-- Live Search & Filter Bar -->
+    <div class="card" style="margin-bottom: var(--space-6); padding: var(--space-4);">
+      <form action="/equipment" method="GET" style="display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: center;" role="search">
+        <div style="flex: 2; min-width: 260px; position: relative;">
+          <input 
+            type="search" 
+            id="liveSearchInput"
+            name="q" 
+            class="form-control" 
+            placeholder="Instant search by title, sensor type, or model..." 
+            value="<%= searchQuery %>"
+            autocomplete="off"
+            aria-label="Filter equipment by title or specs"
+          >
+        </div>
+
+        <div style="flex: 1; min-width: 160px;">
+          <select name="status" class="form-control" onchange="this.form.submit()" aria-label="Filter by availability status">
+            <option value="all" <%= selectedStatus === 'all' ? 'selected' : '' %>>All Availability</option>
+            <option value="available" <%= selectedStatus === 'available' ? 'selected' : '' %>>Available Now</option>
+            <option value="reserved" <%= selectedStatus === 'reserved' ? 'selected' : '' %>>Pending / Reserved</option>
+            <option value="borrowed" <%= selectedStatus === 'borrowed' ? 'selected' : '' %>>Currently In Use</option>
+          </select>
+        </div>
+
+        <div style="flex: 1; min-width: 160px;">
+          <select name="sort" class="form-control" onchange="this.form.submit()" aria-label="Sort equipment results">
+            <option value="recommended" <%= selectedSort === 'recommended' ? 'selected' : '' %>>Recommended</option>
+            <option value="fee_asc" <%= selectedSort === 'fee_asc' ? 'selected' : '' %>>Lowest Daily Fee</option>
+            <option value="deposit_asc" <%= selectedSort === 'deposit_asc' ? 'selected' : '' %>>Lowest Deposit</option>
+            <option value="trust_score" <%= selectedSort === 'trust_score' ? 'selected' : '' %>>Trust Score Match</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-outline btn-sm no-spin" style="min-width: 80px;">Filter</button>
+        <% if (searchQuery || selectedCategory !== 'All' || selectedStatus !== 'all' || selectedSort !== 'recommended') { %>
+          <a href="/equipment" class="btn btn-ghost btn-sm" style="color: var(--color-muted);">Clear</a>
+        <% } %>
+      </form>
+    </div>
+
+    <!-- Category Filter Pills -->
+    <nav class="category-filter-bar" aria-label="Department category filter">
+      <a 
+        href="/equipment?category=All&q=<%= encodeURIComponent(searchQuery) %>&status=<%= selectedStatus %>" 
+        class="category-pill <%= selectedCategory === 'All' ? 'active' : '' %>"
+      >
+        <span>All Departments</span>
+        <span class="pill-count"><%= categoryCounts['All'] || equipment.length %></span>
+      </a>
+
+      <% const icons = { 'Mechanical': '⚙️', 'Civil': '🏗️', 'Electrical': '⚡', 'Survey': '📐', 'Other Engineering Equipment': '🔬' }; %>
+      <% categories.forEach(function(cat) { %>
+        <a 
+          href="/equipment?category=<%= encodeURIComponent(cat) %>&q=<%= encodeURIComponent(searchQuery) %>&status=<%= selectedStatus %>" 
+          class="category-pill <%= selectedCategory === cat ? 'active' : '' %>"
+        >
+          <span aria-hidden="true"><%= icons[cat] || '🛠️' %></span>
+          <span><%= cat %></span>
+          <span class="pill-count"><%= categoryCounts[cat] || 0 %></span>
+        </a>
+      <% }); %>
+    </nav>
+
+    <!-- Equipment Grid -->
+    <div class="equipment-grid">
+      <% if (equipment && equipment.length > 0) { %>
+        <% equipment.forEach(function(item) { %>
+          <article 
+            class="equipment-card" 
+            data-title="<%= item.title %>" 
+            data-category="<%= item.category %>" 
+            data-specs="<%= item.specs ? item.specs.join(' ') : '' %>"
+          >
+            <div class="equipment-card-media">
+              <span class="equipment-icon-fallback" aria-hidden="true"><%= icons[item.category] || '🛠️' %></span>
+              <div class="equipment-card-badge">
+                <% if (item.status === 'available') { %>
+                  <span class="badge badge-available">
+                    <span class="status-dot available" aria-hidden="true"></span> Available
+                  </span>
+                <% } else if (item.status === 'reserved') { %>
+                  <span class="badge badge-pending">
+                    <span class="status-dot pending" aria-hidden="true"></span> Reserved
+                  </span>
+                <% } else { %>
+                  <span class="badge badge-overdue">
+                    <span class="status-dot borrowed" aria-hidden="true"></span> In Use
+                  </span>
+                <% } %>
+              </div>
+            </div>
+
+            <div class="equipment-card-content">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2);">
+                <span class="badge badge-category" style="font-size: 11px;"><%= item.category %></span>
+                <span class="caption font-medium">★ Trust Req: <%= item.minTrustScore || 60 %></span>
+              </div>
+
+              <h2 class="equipment-card-title">
+                <a href="/equipment/<%= item._id || item.id %>" style="color: inherit; text-decoration: none;">
+                  <%= item.title %>
+                </a>
+              </h2>
+
+              <div class="equipment-card-dept">
+                <span>📍 <%= item.pickupLocation %></span>
+              </div>
+
+              <% if (item.specs && item.specs.length > 0) { %>
+                <div class="equipment-card-specs">
+                  <%= item.specs[0] %>
+                </div>
+              <% } %>
+
+              <div class="equipment-card-footer">
+                <div class="pricing-tag">
+                  <span class="pricing-amount"><%= item.dailyFee > 0 ? '₹' + item.dailyFee + '/day' : 'Free Loan' %></span>
+                  <span class="pricing-deposit">Deposit: ₹<%= item.deposit %> (100% Refundable)</span>
+                </div>
+                <% if (item.status === 'available') { %>
+                  <a href="/borrow/request/<%= item._id || item.id %>" class="btn btn-primary btn-sm">
+                    Borrow
+                  </a>
+                <% } else { %>
+                  <a href="/equipment/<%= item._id || item.id %>" class="btn btn-outline btn-sm">
+                    Details
+                  </a>
+                <% } %>
+              </div>
+            </div>
+          </article>
+        <% }); %>
+      <% } %>
+    </div>
+
+    <!-- Empty State -->
+    <div id="clientEmptyState" class="empty-state" style="<%= equipment && equipment.length > 0 ? 'display: none;' : '' %> margin-top: var(--space-8);">
+      <div class="empty-state-icon" aria-hidden="true">📦</div>
+      <h3 class="empty-state-title">No matching equipment found</h3>
+      <p class="empty-state-desc">Try adjusting your search keywords, clear department filters, or check back later.</p>
+      <a href="/equipment" class="btn btn-primary btn-sm">Reset All Filters</a>
+    </div>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,188 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content">
+  <div class="container">
+    <%- include('../partials/flash') %>
+
+    <!-- Breadcrumb Wayfinding -->
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/" class="breadcrumb-item">Home</a>
+      <span class="breadcrumb-separator" aria-hidden="true">/</span>
+      <span class="breadcrumb-current" aria-current="page">Senior Lender Panel</span>
+    </nav>
+
+    <div class="section-header">
+      <div>
+        <h1>Senior Lender & Custodian Panel</h1>
+        <p class="text-muted">Review student borrow requests, approve pickups, and verify equipment returns.</p>
+      </div>
+      <div style="display: flex; gap: var(--space-2);">
+        <a href="/equipment/new" class="btn btn-primary btn-sm">+ List New Gear</a>
+      </div>
+    </div>
+
+    <!-- Quick Senior Custodian Summary Stats (Matching Reference 2 & 3) -->
+    <div class="metrics-row">
+      <div class="metric-stat-card accent-amber">
+        <span class="stat-label">Pending Approvals</span>
+        <div class="stat-value" style="color: var(--color-warning);"><%= pendingRequests ? pendingRequests.length : 0 %></div>
+        <span class="caption">Action required before pickup</span>
+      </div>
+      <div class="metric-stat-card accent-purple">
+        <span class="stat-label">Active Loans Lent</span>
+        <div class="stat-value" style="color: var(--color-primary);"><%= activeLent ? activeLent.length : 0 %></div>
+        <span class="caption">Currently in student possession</span>
+      </div>
+      <div class="metric-stat-card accent-green">
+        <span class="stat-label">Past Verifications</span>
+        <div class="stat-value" style="color: var(--color-success);"><%= typeof completedLoans !== 'undefined' && completedLoans ? completedLoans.length : 0 %></div>
+        <span class="caption">Returns inspected & confirmed</span>
+      </div>
+      <div class="metric-stat-card accent-blue">
+        <span class="stat-label">Senior Trust Rating</span>
+        <div class="stat-value" style="color: var(--color-info);">★ <%= (user && user.trustScore) || 95 %></div>
+        <span class="caption">Gold Tier Custodian</span>
+      </div>
+    </div>
+
+    <!-- Section Filter Tabs (Matching Reference 3) -->
+    <div class="section-pill-tabs" role="tablist">
+      <a href="#pending" class="section-pill-tab active" role="tab">Pending Requests (<%= pendingRequests ? pendingRequests.length : 0 %>)</a>
+      <a href="#active" class="section-pill-tab" role="tab">Active Lent (<%= activeLent ? activeLent.length : 0 %>)</a>
+      <a href="#my-gear" class="section-pill-tab" role="tab">My Equipment (<%= myEquipment ? myEquipment.length : 0 %>)</a>
+    </div>
+
+        <!-- 1. Incoming Requests (Require Senior Action) -->
+    <section class="section">
+      <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-4);">
+        <h2 style="font-size: 18px;">Incoming Requests Awaiting Approval</h2>
+        <span class="badge badge-pending"><%= pendingRequests ? pendingRequests.length : 0 %> Pending</span>
+      </div>
+
+      <% if (pendingRequests && pendingRequests.length > 0) { %>
+        <div style="display: flex; flex-direction: column; gap: var(--space-4);">
+          <% pendingRequests.forEach(function(req) { %>
+            <div class="card" style="border-left: 4px solid var(--color-warning);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-3);">
+                <div>
+                  <div style="display: flex; align-items: center; gap: var(--space-2);">
+                    <span style="font-weight: 700; font-size: 15px;">#<%= req.orderNumber %></span>
+                    <span class="badge badge-category"><%= req.equipment ? req.equipment.category : 'Engineering' %></span>
+                  </div>
+                  <h3 style="font-size: 17px; margin: 4px 0 2px;">
+                    <%= req.equipment ? req.equipment.title : 'Equipment Item' %>
+                  </h3>
+                  <div class="caption">
+                    Requested by: <strong><%= req.borrower ? req.borrower.name : 'Student' %></strong> 
+                    (<%= req.borrower ? req.borrower.collegeId : 'STU-ID' %>)
+                  </div>
+                </div>
+
+                <div style="text-align: right;">
+                  <span class="caption">Payment & Deposit</span>
+                  <div style="font-weight: 700; color: var(--color-success);">✅ PAID (₹<%= req.depositAmount %>)</div>
+                </div>
+              </div>
+
+              <!-- Details Grid -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3); background-color: var(--color-surface-alt); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); font-size: 12px; margin-bottom: var(--space-4); border: 1px solid var(--color-border);">
+                <div>
+                  <span class="caption">Requested Pickup:</span>
+                  <div class="font-semibold">📅 <%= req.pickupDateStr || req.pickupDate %> • ⏰ <%= req.pickupTime %></div>
+                </div>
+                <div>
+                  <span class="caption">Station:</span>
+                  <div class="font-semibold">📍 <%= req.pickupLocation %></div>
+                </div>
+                <div>
+                  <span class="caption">Expected Return:</span>
+                  <div class="font-semibold" style="color: var(--color-primary);"><%= req.returnDate %></div>
+                </div>
+                <div>
+                  <span class="caption">Student Purpose:</span>
+                  <div style="font-weight: 500; font-style: italic;">"<%= req.purpose %>"</div>
+                </div>
+              </div>
+
+              <!-- Senior Actions -->
+              <div style="display: flex; justify-content: flex-end; gap: var(--space-3); border-top: 1px solid var(--color-border); padding-top: var(--space-3);">
+                <form action="/borrow/<%= req._id || req.id %>/decline" method="POST" style="margin: 0;">
+                  <button type="submit" class="btn btn-outline btn-sm">Decline</button>
+                </form>
+                <form action="/borrow/<%= req._id || req.id %>/approve" method="POST" style="margin: 0;">
+                  <button type="submit" class="btn btn-primary btn-sm">
+                    ✔ Approve & Notify Ready for Pickup
+                  </button>
+                </form>
+              </div>
+
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="empty-state" style="padding: var(--space-6);">
+          <div class="empty-state-icon" aria-hidden="true">🛡️</div>
+          <h3 class="empty-state-title">No pending requests</h3>
+          <p class="empty-state-desc">All student equipment requests have been processed. Great job!</p>
+        </div>
+      <% } %>
+    </section>
+
+    <!-- 2. Currently Checked Out Gear -->
+    <section class="section">
+      <h2 style="font-size: 18px; margin-bottom: var(--space-4);">Active Instruments Checked Out</h2>
+      <% if (activeLent && activeLent.length > 0) { %>
+        <div class="table-container">
+          <div class="table-responsive">
+            <table class="dense-table">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Equipment</th>
+                  <th>Borrower</th>
+                  <th>Pickup Details</th>
+                  <th>Due Return Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% activeLent.forEach(function(item) { %>
+                  <tr>
+                    <td><strong>#<%= item.orderNumber %></strong></td>
+                    <td><%= item.equipment ? item.equipment.title : 'Item' %></td>
+                    <td><%= item.borrower ? item.borrower.name : 'Student' %></td>
+                    <td><%= item.pickupDateStr %> • <%= item.pickupTime %></td>
+                    <td><strong style="color: var(--color-primary);"><%= item.returnDate %></strong></td>
+                    <td>
+                      <% if (item.status === 'approved') { %>
+                        <span class="badge badge-warning">Awaiting Collection</span>
+                      <% } else { %>
+                        <span class="badge badge-available">In Use</span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <form action="/borrow/<%= item._id || item.id %>/return" method="POST" style="margin: 0;">
+                        <button type="submit" class="btn btn-outline btn-sm" title="Verify Return & Refund Deposit">
+                          Confirm Return & Refund
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="empty-state" style="padding: var(--space-6);">
+          <p class="caption">No active gear currently out on loan.</p>
+        </div>
+      <% } %>
+    </section>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

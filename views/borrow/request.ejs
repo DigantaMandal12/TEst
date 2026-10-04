@@ -1,0 +1,156 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content">
+  <div class="container container-narrow">
+    <%- include('../partials/flash') %>
+
+    <!-- Breadcrumb Wayfinding -->
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/equipment" class="breadcrumb-item">Catalogue</a>
+      <span class="breadcrumb-separator" aria-hidden="true">/</span>
+      <a href="/equipment/<%= equipment._id || equipment.id %>" class="breadcrumb-item"><%= equipment.title %></a>
+      <span class="breadcrumb-separator" aria-hidden="true">/</span>
+      <span class="breadcrumb-current" aria-current="page">Borrow Request</span>
+    </nav>
+
+    <div style="margin-bottom: var(--space-6);">
+      <h1 style="font-size: 26px;">Submit Borrow Request</h1>
+      <p class="text-muted">Reserve your pickup slot and notify the equipment custodian for senior approval.</p>
+    </div>
+
+    <!-- Timeline Stepper (Step 2 active) -->
+    <div style="margin-bottom: var(--space-6);">
+      <%- include('../partials/timeline', { currentStep: 2 }) %>
+    </div>
+
+    <!-- Equipment Summary Card -->
+    <div class="card" style="display: flex; gap: var(--space-4); align-items: center; margin-bottom: var(--space-6); background-color: var(--color-surface-alt); border: 1px solid var(--color-border);">
+      <div style="font-size: 38px; padding: var(--space-2); background: white; border-radius: var(--radius-md); border: 1px solid var(--color-border);" aria-hidden="true">
+        🛠️
+      </div>
+      <div style="flex: 1;">
+        <span class="badge badge-category" style="font-size: 11px;"><%= equipment.category %></span>
+        <h2 style="font-size: 18px; margin: 2px 0;"><%= equipment.title %></h2>
+        <div class="caption">Condition: <strong><%= equipment.condition %></strong> • Tag: <%= equipment.serialNumber || 'LAB-TAG' %> • Min Trust Score: <%= equipment.minTrustScore || 60 %></div>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-weight: 700; color: var(--color-primary); font-size: 18px;">
+          <%= equipment.dailyFee > 0 ? '₹' + equipment.dailyFee + '/day' : 'Free Loan' %>
+        </div>
+        <div class="caption">Refundable Deposit: ₹<%= equipment.deposit %></div>
+      </div>
+    </div>
+
+    <!-- Borrow Request Form -->
+    <div class="card" style="padding: var(--space-6);">
+      <form action="/borrow/request" method="POST" id="borrowRequestForm">
+        <input type="hidden" name="equipmentId" value="<%= equipment._id || equipment.id %>">
+
+        <h3 style="margin-bottom: var(--space-4); font-size: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-2);">1. Pickup Details</h3>
+
+        <!-- Pickup Date Selection -->
+        <div class="form-group">
+          <label class="form-label form-label-required" for="pickupDate">Select Pickup Date (Closed Sundays)</label>
+          <select name="pickupDate" id="pickupDate" class="form-control" required>
+            <% availableDates.forEach(function(d) { %>
+              <option 
+                value="<%= d.dateString %>" 
+                <%= !d.isAvailable ? 'disabled style="color:#94a3b8;"' : '' %>
+              >
+                <%= d.formatted %> <%= !d.isAvailable ? '— [CLOSED SUNDAY]' : '— AVAILABLE' %>
+              </option>
+            <% }); %>
+          </select>
+          <span class="form-hint" id="sundayWarning" style="color: var(--color-error); display: none;">
+            ⚠️ Department pickup stations are closed on Sundays.
+          </span>
+        </div>
+
+        <!-- Pickup Time Slot -->
+        <div class="form-group">
+          <label class="form-label form-label-required" for="pickupSlotId">Select 30-Minute Time Slot</label>
+          <select name="pickupSlotId" id="pickupSlotId" class="form-control" required>
+            <% pickupSlots.forEach(function(slot) { %>
+              <option value="<%= slot.id %>"><%= slot.label %></option>
+            <% }); %>
+          </select>
+          <span class="form-hint">Choose a convenient arrival window at the designated station.</span>
+        </div>
+
+        <!-- Pickup Campus Location -->
+        <div class="form-group">
+          <label class="form-label form-label-required" for="pickupLocation">Designated Campus Pickup Station</label>
+          <select name="pickupLocation" id="pickupLocation" class="form-control" required>
+            <% locations.forEach(function(loc) { %>
+              <option value="<%= loc %>" <%= loc === equipment.pickupLocation ? 'selected' : '' %>>
+                📍 <%= loc %>
+              </option>
+            <% }); %>
+          </select>
+        </div>
+
+        <h3 style="margin: var(--space-6) 0 var(--space-4); font-size: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-2);">2. Return Schedule & Academic Purpose</h3>
+
+        <!-- Return Date -->
+        <div class="form-group">
+          <label class="form-label form-label-required" for="returnDate">Expected Return Date</label>
+          <% 
+            const today = new Date();
+            const defaultReturn = new Date(today.setDate(today.getDate() + 5)).toISOString().split('T')[0];
+          %>
+          <input 
+            type="date" 
+            id="returnDate" 
+            name="returnDate" 
+            class="form-control" 
+            value="<%= defaultReturn %>" 
+            required
+          >
+          <span class="form-hint">Maximum standard borrowing period is <%= equipment.maxBorrowDays || 7 %> days.</span>
+        </div>
+
+        <!-- Purpose -->
+        <div class="form-group">
+          <label class="form-label form-label-required" for="purpose">Academic Purpose / Project Description</label>
+          <textarea 
+            name="purpose" 
+            id="purpose" 
+            class="form-control" 
+            placeholder="e.g., Machine Drawing semester assignment 3, surveying practicals at campus ground..." 
+            required
+          ></textarea>
+        </div>
+
+        <!-- Deposit & Security Trust Breakdown -->
+        <div style="background-color: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); margin: var(--space-6) 0;">
+          <h4 style="font-size: 14px; margin-bottom: var(--space-2);">Deposit & Checkout Summary</h4>
+          <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+            <span>Security Deposit (Refunded Upon Return):</span>
+            <strong>₹<%= equipment.deposit %></strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+            <span>Rental Fee:</span>
+            <span style="color: var(--color-success); font-weight: 600;">
+              <%= equipment.dailyFee > 0 ? '₹' + equipment.dailyFee + '/day' : '₹0 (Waived for Students)' %>
+            </span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; border-top: 1px solid var(--color-border); padding-top: 6px;">
+            <span>Total Payable Now:</span>
+            <span style="color: var(--color-primary);">₹<%= equipment.deposit %></span>
+          </div>
+          <p class="caption" style="margin-top: 8px;">
+            ℹ️ When collecting equipment at the station, please present your valid College ID card to verify pickup.
+          </p>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full btn-lg">
+          Confirm & Send Request to Senior Approver ➔
+        </button>
+      </form>
+    </div>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

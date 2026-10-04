@@ -1,0 +1,39 @@
+{
+  "name": "campus-equipment-lending-exchange",
+  "version": "1.0.0",
+  "description": "A campus platform where students can list, discover, borrow, return, and manage academic equipment.",
+  "main": "server.js",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node tests/runAll.js && node test_workflow.js && node test_app_views.js && node test_lifecycle.js && node test_ai_security.js && node test_production_resilience.js && node test_firebase_migration.js && node test_mobile_responsiveness.js && node test_openrouter_integration.js && node test_security_hardening.js && node test_master_qa.js && node test_staging_validation.js && node test_production_launch.js && node test_operations_resilience.js && node test_social_auth.js && node test_vercel_entrypoint.js && node test_login_regression.js",
+    "build": "node scripts/verifyBuild.js",
+    "migrate:firestore": "node scripts/migrateMongoToFirestore.js",
+    "test:phases": "node tests/runAll.js"
+  },
+  "keywords": [
+    "campus",
+    "equipment",
+    "lending",
+    "academic",
+    "express",
+    "firebase",
+    "firestore",
+    "ejs"
+  ],
+  "author": "Campus Lending Team",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0"
+  },
+  "devDependencies": {}
+}

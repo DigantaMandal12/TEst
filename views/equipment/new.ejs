@@ -1,0 +1,120 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content">
+  <div class="container container-narrow">
+    <%- include('../partials/flash') %>
+
+    <!-- Breadcrumb Wayfinding -->
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/equipment" class="breadcrumb-item">Catalogue</a>
+      <span class="breadcrumb-separator" aria-hidden="true">/</span>
+      <span class="breadcrumb-current" aria-current="page">List Equipment</span>
+    </nav>
+
+    <div style="margin-bottom: var(--space-6);">
+      <h1 style="font-size: 26px;">List Engineering Equipment</h1>
+      <p class="text-muted">Make your lab tools, drafters, or calculators available for campus peers.</p>
+    </div>
+
+    <div class="card" style="padding: var(--space-6);">
+      <form action="/equipment" method="POST" id="newEquipmentForm">
+
+        <!-- Title -->
+        <div class="form-group">
+          <label class="form-label form-label-required" for="title">Equipment Title / Model Name</label>
+          <input 
+            type="text" 
+            name="title" 
+            id="title" 
+            class="form-control" 
+            placeholder="e.g. Omega Mini Drafter 360°, Fluke 87V Multimeter" 
+            required
+          >
+        </div>
+
+        <!-- Category & Condition -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label form-label-required" for="category">Engineering Category</label>
+            <select name="category" id="category" class="form-control" required>
+              <% categories.forEach(function(cat) { %>
+                <option value="<%= cat %>"><%= cat %></option>
+              <% }); %>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required" for="condition">Physical & Working Condition</label>
+            <select name="condition" id="condition" class="form-control" required>
+              <option value="Brand New">Brand New</option>
+              <option value="Excellent" selected>Excellent (Calibrated)</option>
+              <option value="Good">Good (Minor cosmetic wear)</option>
+              <option value="Fair">Fair (Fully operational)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label class="form-label form-label-required" for="description">Detailed Description & Features</label>
+          <textarea 
+            name="description" 
+            id="description" 
+            class="form-control" 
+            placeholder="Include accessories included, scale dimensions, battery type, or department lab usage guidelines..." 
+            required
+          ></textarea>
+        </div>
+
+        <!-- Specs (one per line) -->
+        <div class="form-group">
+          <label class="form-label" for="specs">Key Technical Specs (One per line)</label>
+          <textarea 
+            name="specs" 
+            id="specs" 
+            class="form-control" 
+            placeholder="Stainless steel arms&#10;360° protractor scale&#10;Includes clamp"
+          ></textarea>
+        </div>
+
+        <!-- Pricing & Deposit -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="dailyFee">Daily Fee (₹, 0 for free student loan)</label>
+            <input type="number" name="dailyFee" id="dailyFee" class="form-control" value="0" min="0">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required" for="deposit">Refundable Security Deposit (₹)</label>
+            <input type="number" name="deposit" id="deposit" class="form-control" value="200" min="0" required>
+          </div>
+        </div>
+
+        <!-- Pickup Station -->
+        <div class="form-group">
+          <label class="form-label form-label-required" for="pickupLocation">Designated Campus Pickup Station</label>
+          <select name="pickupLocation" id="pickupLocation" class="form-control" required>
+            <% locations.forEach(function(loc) { %>
+              <option value="<%= loc %>">📍 <%= loc %></option>
+            <% }); %>
+          </select>
+        </div>
+
+        <!-- Trust Score Requirement -->
+        <div class="form-group">
+          <label class="form-label" for="minTrustScore">Minimum Student Trust Score Required (0–100)</label>
+          <input type="number" name="minTrustScore" id="minTrustScore" class="form-control" value="60" min="0" max="100">
+          <span class="form-hint">Standard default is 60 (Bronze Tier). High-value equipment can set 80+.</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full btn-lg" style="margin-top: var(--space-4);">
+          Publish Equipment to Catalogue ➔
+        </button>
+      </form>
+    </div>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

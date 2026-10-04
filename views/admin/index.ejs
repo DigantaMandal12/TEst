@@ -1,0 +1,216 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content">
+  <div class="container">
+    <%- include('../partials/flash') %>
+
+    <!-- Breadcrumb Wayfinding -->
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/" class="breadcrumb-item">Home</a>
+      <span class="breadcrumb-separator" aria-hidden="true">/</span>
+      <span class="breadcrumb-current" aria-current="page">Campus Administration</span>
+    </nav>
+
+    <div class="section-header">
+      <div>
+        <h1>Campus Administration & Inventory Control</h1>
+        <p class="text-muted">Institutional oversight of department equipment, active loan monitoring, and Trust Scores.</p>
+      </div>
+      <span class="badge badge-category" style="padding: 6px 14px; font-size: 13px;">Admin Mode Active</span>
+    </div>
+
+    <!-- Metric Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-8);">
+      <div class="stat-card">
+        <span class="stat-label">Total Inventory</span>
+        <div class="stat-value" style="color: var(--color-primary);"><%= stats.totalEquipment %></div>
+        <span class="caption" style="color: var(--color-success);"><%= stats.availableEquipment %> Available Now</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Active Student Loans</span>
+        <div class="stat-value" style="color: var(--color-warning);"><%= stats.activeLoans %></div>
+        <span class="caption">Zero Overdue Escalations</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Registered Members</span>
+        <div class="stat-value" style="color: var(--color-text);"><%= stats.totalUsers %></div>
+        <span class="caption">Students & Senior Lenders</span>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Campus Trust Index</span>
+        <div class="stat-value" style="color: var(--color-success);"><%= stats.avgTrustScore %> / 100</div>
+        <span class="caption">High Reliability Tier</span>
+      </div>
+    </div>
+
+    <!-- Production Operational Telemetry & Health (Phase 12 Monitoring) -->
+    <% if (typeof metrics !== 'undefined' && metrics) { %>
+    <section class="section" style="margin-bottom: var(--space-8);">
+      <div class="card" style="border-left: 4px solid var(--color-success); background: #fdfefe;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+          <div>
+            <h3 style="margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+              <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: <%= metrics.status === 'HEALTHY' ? 'var(--color-success)' : 'var(--color-error)' %>;"></span>
+              Production System Telemetry & Operational Health
+            </h3>
+            <p class="caption" style="margin: 2px 0 0 0;">Uptime: <%= Math.floor(metrics.system.uptimeSeconds / 60) %>m | Node: <%= metrics.system.nodeVersion %> | Env: <%= metrics.system.environment %></p>
+          </div>
+          <span class="badge <%= metrics.status === 'HEALTHY' ? 'badge-available' : 'badge-error' %>"><%= metrics.status %></span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-4);">
+          <div style="padding: 10px 14px; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+            <span class="caption" style="display: block; color: var(--color-text-muted);">HTTP Requests</span>
+            <strong style="font-size: 18px;"><%= metrics.requests.total %></strong>
+            <span class="caption" style="display: block; color: <%= metrics.requests.errorRatePercent > 2 ? 'var(--color-error)' : 'var(--color-success)' %>;">Error Rate: <%= metrics.requests.errorRatePercent %>%</span>
+          </div>
+
+          <div style="padding: 10px 14px; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+            <span class="caption" style="display: block; color: var(--color-text-muted);">Latency (P50 / P95)</span>
+            <strong style="font-size: 18px;"><%= metrics.latencyMs.p50 %>ms / <%= metrics.latencyMs.p95 %>ms</strong>
+            <span class="caption" style="display: block; color: var(--color-text-muted);">Avg: <%= metrics.latencyMs.avg %>ms</span>
+          </div>
+
+          <div style="padding: 10px 14px; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+            <span class="caption" style="display: block; color: var(--color-text-muted);">Memory (RSS / Heap)</span>
+            <strong style="font-size: 18px;"><%= metrics.system.memoryRssMb %>MB</strong>
+            <span class="caption" style="display: block; color: var(--color-text-muted);">Heap: <%= metrics.system.heapUsedMb %>MB</span>
+          </div>
+
+          <div style="padding: 10px 14px; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+            <span class="caption" style="display: block; color: var(--color-text-muted);">AI Assistant</span>
+            <strong style="font-size: 18px;"><%= metrics.ai.totalRequests || 0 %> queries</strong>
+            <span class="caption" style="display: block; color: var(--color-text-muted);">Fallbacks: <%= metrics.ai.fallbackUsage || 0 %></span>
+          </div>
+        </div>
+
+        <% if (metrics.activeAlerts && metrics.activeAlerts.length > 0) { %>
+          <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 10px 14px; border-radius: var(--radius-md);">
+            <strong style="color: var(--color-error); font-size: 13px;">Active Operational Alerts:</strong>
+            <ul style="margin: 4px 0 0 18px; font-size: 13px; color: #991b1b;">
+              <% metrics.activeAlerts.forEach(function(alert) { %>
+                <li>[<%= alert.severity %>] <%= alert.message %></li>
+              <% }); %>
+            </ul>
+          </div>
+        <% } else { %>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--color-success);">
+            <span>✓</span> All telemetry thresholds healthy. Zero active incidents or P1 alerts.
+          </div>
+        <% } %>
+      </div>
+    </section>
+    <% } %>
+
+    <!-- Department Distribution & Active Loans -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-6); margin-bottom: var(--space-8);">
+      <div class="card">
+        <h3 style="margin-bottom: var(--space-3); font-size: 16px;">Department Distribution</h3>
+        <div class="table-container" style="box-shadow: none;">
+          <div class="table-responsive">
+            <table class="dense-table">
+              <thead>
+                <tr>
+                  <th>Department</th>
+                  <th>Instruments</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% categories.forEach(function(cat) { %>
+                  <tr>
+                    <td><strong><%= cat %></strong></td>
+                    <td><%= categoryBreakdown[cat] || 0 %> units</td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: var(--space-3); font-size: 16px;">Active Loan Dispatches</h3>
+        <% if (activeLoans && activeLoans.length > 0) { %>
+          <div class="table-container" style="box-shadow: none;">
+            <div class="table-responsive">
+              <table class="dense-table">
+                <thead>
+                  <tr>
+                    <th>Order #</th>
+                    <th>Item</th>
+                    <th>Borrower</th>
+                    <th>Due</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% activeLoans.slice(0, 5).forEach(function(l) { %>
+                    <tr>
+                      <td><strong>#<%= l.orderNumber %></strong></td>
+                      <td><%= l.equipment ? l.equipment.title : 'Item' %></td>
+                      <td><%= l.borrower ? l.borrower.name : 'Student' %></td>
+                      <td><%= l.returnDate %></td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% } else { %>
+          <p class="caption">No active loans right now.</p>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Complete Inventory Table -->
+    <section class="section">
+      <h2 style="font-size: 18px; margin-bottom: var(--space-4);">Complete Campus Equipment Registry</h2>
+      <div class="table-container">
+        <div class="table-responsive">
+          <table class="dense-table">
+            <thead>
+              <tr>
+                <th>Equipment Title</th>
+                <th>Category</th>
+                <th>Serial / Tag</th>
+                <th>Deposit</th>
+                <th>Status</th>
+                <th>Station Location</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% equipment.forEach(function(item) { %>
+                <tr>
+                  <td><strong><%= item.title %></strong></td>
+                  <td><span class="badge badge-category"><%= item.category %></span></td>
+                  <td><%= item.serialNumber || 'N/A' %></td>
+                  <td>₹<%= item.deposit %></td>
+                  <td>
+                    <% if (item.status === 'available') { %>
+                      <span class="badge badge-available">Available</span>
+                    <% } else if (item.status === 'reserved') { %>
+                      <span class="badge badge-warning">Reserved</span>
+                    <% } else { %>
+                      <span class="badge badge-error">In Use</span>
+                    <% } %>
+                  </td>
+                  <td><%= item.pickupLocation %></td>
+                  <td>
+                    <a href="/equipment/<%= item._id || item.id %>" class="btn btn-outline btn-sm">Inspect</a>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

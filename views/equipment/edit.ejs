@@ -1,0 +1,86 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content">
+  <div class="container container-narrow">
+    <%- include('../partials/flash') %>
+
+    <!-- Breadcrumb Wayfinding -->
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/equipment" class="breadcrumb-item">Catalogue</a>
+      <span class="breadcrumb-separator" aria-hidden="true">/</span>
+      <a href="/equipment/<%= item._id || item.id %>" class="breadcrumb-item"><%= item.title %></a>
+      <span class="breadcrumb-separator" aria-hidden="true">/</span>
+      <span class="breadcrumb-current" aria-current="page">Edit Equipment</span>
+    </nav>
+
+    <div style="margin-bottom: var(--space-6);">
+      <h1 style="font-size: 26px;">Edit <%= item.title %></h1>
+      <p class="text-muted">Update instrument specifications, pricing, or department station location.</p>
+    </div>
+
+    <div class="card" style="padding: var(--space-6);">
+      <form action="/equipment/<%= item._id || item.id %>" method="POST" id="editEquipmentForm">
+        <div class="form-group">
+          <label class="form-label form-label-required" for="title">Equipment Title</label>
+          <input type="text" name="title" id="title" class="form-control" value="<%= item.title %>" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label form-label-required" for="category">Category</label>
+            <select name="category" id="category" class="form-control" required>
+              <% categories.forEach(function(cat) { %>
+                <option value="<%= cat %>" <%= item.category === cat ? 'selected' : '' %>><%= cat %></option>
+              <% }); %>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required" for="status">Availability Status</label>
+            <select name="status" id="status" class="form-control" required>
+              <option value="available" <%= item.status === 'available' ? 'selected' : '' %>>Available</option>
+              <option value="reserved" <%= item.status === 'reserved' ? 'selected' : '' %>>Reserved</option>
+              <option value="borrowed" <%= item.status === 'borrowed' ? 'selected' : '' %>>In Use</option>
+              <option value="maintenance" <%= item.status === 'maintenance' ? 'selected' : '' %>>Under Maintenance</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label form-label-required" for="description">Description</label>
+          <textarea name="description" id="description" class="form-control" required><%= item.description %></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="dailyFee">Daily Fee (₹)</label>
+            <input type="number" name="dailyFee" id="dailyFee" class="form-control" value="<%= item.dailyFee || 0 %>">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required" for="deposit">Deposit (₹)</label>
+            <input type="number" name="deposit" id="deposit" class="form-control" value="<%= item.deposit || 0 %>">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label form-label-required" for="pickupLocation">Pickup Station</label>
+          <select name="pickupLocation" id="pickupLocation" class="form-control" required>
+            <% locations.forEach(function(loc) { %>
+              <option value="<%= loc %>" <%= item.pickupLocation === loc ? 'selected' : '' %>>📍 <%= loc %></option>
+            <% }); %>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: var(--space-3); margin-top: var(--space-4);">
+          <button type="submit" class="btn btn-primary" style="flex: 1;">Save Changes ➔</button>
+          <a href="/equipment/<%= item._id || item.id %>" class="btn btn-outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>
